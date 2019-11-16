@@ -1,0 +1,17 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+bs = "*"
+lxml = "*"
+tkinter = "*"
+sqlite3 = "*"
+bs4 = "*"
+flake8 = "*"
+
+[requires]
+python_version = "3.6"
