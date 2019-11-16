@@ -27,20 +27,31 @@ def get_jobs():
             continue
         linklist.append([get_link_from_onclick(link.get('onclick')), link.get_text()])
 
+    return linklist
+
 # #SQLite settings:
 # conn = sqlite3.connect("hamburg_stellensuche.db")
 # c = conn.cursor()
 
-# root = tk.Tk()
-# root.title("Hamburg Stellensuch by KOshey")
+root = tk.Tk()
+root.title("Hamburg Stellensuche by KOshey")
 
-# #setting up the size and bg image:
-# canvas = tk.Canvas(root, height = HEIGHT, width = WIDTH)
-# canvas.pack()
+#setting up the size and bg image:
+canvas = tk.Canvas(root, height = HEIGHT, width = WIDTH)
+canvas.pack()
 
-# bg_image = tk.PhotoImage(file="money.png")
-# bg_label= tk.Label(root, image= bg_image)
-# bg_label.place(relheight = 1, relwidth = 1)
+bg_image = tk.PhotoImage(file="hamburg-als-arbeitgeber.png")
+bg_label= tk.Label(root, image= bg_image)
+bg_label.place(relheight = 1, relwidth = 1)
 
+textframe = tk.Frame(root, bg = "white")
+textframe.place(relx = 0.05, rely = 0.05, relwidth = 0.90, relheight = 0.90)
 
-# root.mainloop()
+textbox = tk.Text(textframe, bg = "white")
+textbox.place(rely = 0.07, relwidth=1, relheight=0.93)
+
+for job in get_jobs():
+    textbox.insert(tk.INSERT, job[0])
+    textbox.insert(tk.INSERT, "\n")
+        
+root.mainloop()
