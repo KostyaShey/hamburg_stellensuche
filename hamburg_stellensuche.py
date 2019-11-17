@@ -3,10 +3,14 @@ import urllib.request
 import tkinter as tk
 import sqlite3
 import urllib.request
+from functools import partial
+import webbrowser
 
 HEIGHT = 700
 WIDTH = 1300
-RELBUTTONHEIGHT = 0.05
+
+def myfunction(event):
+    scroll_canvas.configure(scrollregion = scroll_canvas.bbox("all"))
 
 def get_url_from_onclick(onclick_text):
     string_split = onclick_text.split("'")
@@ -64,16 +68,44 @@ def get_jobs_from_db(table):
     newjobs = c.fetchall()
     return newjobs
 
+def open_url(url):
+    webbrowser.open(url)
+
 def display_jobs(listofjobs, table):
-    if table == "NEW":
-        textbox.delete(0.0, tk.END)
+    
     if table == "OLD":
         listofjobs.reverse()
-    for job in listofjobs:
+
+    frames = []
+    for n in range(len(listofjobs)):
+        frame = tk.Frame(scroll_frame, bg = "white")
+        frame.pack(side='top', anchor='w', fill = "x")
+        # Store the current frame reference in "frames"
+        frames.append(frame)
+
+    for i, frame in enumerate(frames):
         if table == "NEW":
-            textbox.insert(tk.INSERT, "NEW: ")
-        textbox.insert(tk.INSERT, job[1])
-        textbox.insert(tk.INSERT, "\n")
+            new_label = tk.Label(frame, text="NEW: ", bg = "white", fg="red")
+            new_label.pack(side='left', padx=10)
+        label = tk.Label(frame, text=listofjobs[i][1], bg = "white")
+        label.pack(side='left', fill="x", pady=10, padx = 10)
+        openurlinbrowser = partial(open_url, listofjobs[i][2])
+        url_button = tk.Button(frame, text = "Im Browser öffnen", command = openurlinbrowser)
+        url_button.pack(side='left', padx = 10)
+
+def update_infoframe():
+    
+    text_job_count = "Jobs verfügbar: " + str(len(get_jobs_from_db("NEW")) + len(get_jobs_from_db("OLD")))
+    label_job_count = tk.Label(infoframe, text = text_job_count, bg = "bisque")
+    label_job_count.pack(side = 'left', padx = 20)
+
+    text_new_job_count = "Neue Jobs: " + str(len(get_jobs_from_db("NEW")))
+    label_new_job = tk.Label(infoframe, text = text_new_job_count, bg = "bisque")
+    label_new_job.pack(side = 'left', padx = 20)
+    
+    text_old_job_count = "Alte Jobs: " + str(len(get_jobs_from_db("OLD")))
+    label_old_job = tk.Label(infoframe, text = text_old_job_count, bg = "bisque")
+    label_old_job.pack(side = 'left', padx = 20)
 
 #SQLite settings:
 conn = sqlite3.connect("hamburg_stellensuche.db")
@@ -97,10 +129,22 @@ bg_label.place(relheight = 1, relwidth = 1)
 textframe = tk.Frame(root, bg = "white")
 textframe.place(relx = 0.05, rely = 0.05, relwidth = 0.90, relheight = 0.90)
 
-textbox = tk.Text(textframe, bg = "white",  relief = "groove", spacing1 = 10)
-textbox.place(rely = 0.07, relwidth=1, relheight=0.93)
+infoframe = tk.Frame(textframe, bg = "bisque")
+infoframe.place(relheight = 0.07, relwidth=1)
 
+scroll_canvas = tk.Canvas(textframe, bg = "white")
+scroll_frame = tk.Frame(scroll_canvas)
+scrollbar = tk.Scrollbar(textframe, orient = "vertical", command = scroll_canvas.yview)
+scrollbar.place(relx = 0.99, rely = 0.07, relwidth=0.01, relheight=0.93)
+scroll_canvas.config(yscrollcommand = scrollbar.set)
+scroll_canvas.place(rely = 0.07, relwidth=1, relheight=0.93)
+scroll_canvas.create_window((0,0), window = scroll_frame, anchor = 'nw')
+scroll_frame.bind("<Configure>", myfunction)
+
+
+#fetching, sorting and displaying the jobs
 sort_jobs(get_jobs_from_web())
+update_infoframe()
 display_jobs(get_jobs_from_db("NEW"), "NEW")
 display_jobs(get_jobs_from_db("OLD"), "OLD")
         

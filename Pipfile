@@ -12,6 +12,7 @@ tkinter = "*"
 sqlite3 = "*"
 bs4 = "*"
 flake8 = "*"
+webbrowser = "*"
 
 [requires]
 python_version = "3.6"
