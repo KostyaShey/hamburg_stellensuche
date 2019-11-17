@@ -13,6 +13,7 @@ sqlite3 = "*"
 bs4 = "*"
 flake8 = "*"
 webbrowser = "*"
+pyinstaller = "*"
 
 [requires]
 python_version = "3.6"
