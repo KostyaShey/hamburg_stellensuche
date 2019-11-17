@@ -67,12 +67,13 @@ def get_jobs_from_db(table):
 def display_jobs(listofjobs, table):
     if table == "NEW":
         textbox.delete(0.0, tk.END)
+    if table == "OLD":
+        listofjobs.reverse()
     for job in listofjobs:
         if table == "NEW":
             textbox.insert(tk.INSERT, "NEW: ")
-        textbox.insert(tk.INSERT, job[2])
+        textbox.insert(tk.INSERT, job[1])
         textbox.insert(tk.INSERT, "\n")
-
 
 #SQLite settings:
 conn = sqlite3.connect("hamburg_stellensuche.db")
