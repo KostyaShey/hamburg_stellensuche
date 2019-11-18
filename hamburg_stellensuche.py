@@ -5,9 +5,11 @@ import sqlite3
 import urllib.request
 from functools import partial
 import webbrowser
+from datetime import datetime
 
 HEIGHT = 700
 WIDTH = 1300
+dateofposting = f"{datetime.now():%d-%m-%Y}"
 
 def myfunction(event):
     scroll_canvas.configure(scrollregion = scroll_canvas.bbox("all"))
@@ -40,8 +42,8 @@ def sort_jobs(joblist):
     for job in joblist:
         if job[0] in id_oldjobs:
             continue
-        params = (job[0], job[1], job[2])
-        c.execute('INSERT INTO NEW VALUES (?, ?, ?)', params)
+        params = (job[0], job[1], job[2], job[3])
+        c.execute('INSERT INTO NEW VALUES (?, ?, ?, ?)', params)
     conn.commit()
 
 
@@ -59,7 +61,7 @@ def get_jobs_from_web():
         if link.get_text() == "":
             continue
         url = get_url_from_onclick(link.get('onclick'))
-        joblist.append([get_id_from_link(url), link.get_text() , url])
+        joblist.append([get_id_from_link(url), link.get_text() , url, dateofposting])
 
     return joblist
 
@@ -89,6 +91,8 @@ def display_jobs(listofjobs, table):
             new_label.pack(side='left', padx=10)
         label = tk.Label(frame, text=listofjobs[i][1], bg = "white")
         label.pack(side='left', fill="x", pady=10, padx = 10)
+        datelabel = tk.Label(frame, text= "|     Online seit: " + listofjobs[i][3] + "     |", bg = "white", fg="grey")
+        datelabel.pack(side='left', fill="x")
         openurlinbrowser = partial(open_url, listofjobs[i][2])
         url_button = tk.Button(frame, text = "Im Browser öffnen", command = openurlinbrowser)
         url_button.pack(side='left', padx = 10)
@@ -111,8 +115,8 @@ def update_infoframe():
 conn = sqlite3.connect("hamburg_stellensuche.db")
 c = conn.cursor()
 
-c.execute('CREATE TABLE IF NOT EXISTS "NEW" ("ID" TEXT NOT NULL,"Name" TEXT NOT NULL, "Link" TEXT NOT NULL, PRIMARY KEY ("ID"))')
-c.execute('CREATE TABLE IF NOT EXISTS "OLD" ("ID" TEXT NOT NULL,"Name" TEXT NOT NULL, "Link" TEXT NOT NULL, PRIMARY KEY ("ID"))')
+c.execute('CREATE TABLE IF NOT EXISTS "NEW" ("ID" TEXT NOT NULL,"Name" TEXT NOT NULL, "Link" TEXT NOT NULL, "Date" TEXT NOT NULL, PRIMARY KEY ("ID"))')
+c.execute('CREATE TABLE IF NOT EXISTS "OLD" ("ID" TEXT NOT NULL,"Name" TEXT NOT NULL, "Link" TEXT NOT NULL, "Date" TEXT NOT NULL, PRIMARY KEY ("ID"))')
 conn.commit()
 
 root = tk.Tk()
